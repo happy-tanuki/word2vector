@@ -195,6 +195,9 @@ void bin2txt(const FunctionCallbackInfo<Value>& info) {
 }
 
 void getVectors(const FunctionCallbackInfo<Value>& info) {
+  Isolate *isolate = info.GetIsolate();
+  Local<Context> context = isolate->GetCurrentContext();
+
   if(info.Length() < 1) {
     printf("getVectors requires first parameter.\n");
     info.GetReturnValue().Set(New<Boolean>(false));
@@ -208,10 +211,10 @@ void getVectors(const FunctionCallbackInfo<Value>& info) {
   Local<Array> word_obj_array = Local<Array>::Cast(info[0]);
   uint32_t w = 0;
   while(w < word_obj_array->Length()){
-    Handle<Object> word_obj = New<Object>();
+    Local<Object> word_obj = New<Object>();
     word_obj->Set(
       New<String>("word").ToLocalChecked(),
-      word_obj_array->Get(New<Number>(w))->ToString()
+      word_obj_array->Get(New<Number>(w))->ToString(context).ToLocalChecked()
     );
     strcpy(st1, *Utf8String(word_obj_array->Get(New<Number>(w))));
     cn = 0;
@@ -332,7 +335,7 @@ void getSimilarWords(const FunctionCallbackInfo<Value>& info)
   }
   Local<Array> word_obj_array = New<Array>(N);
   for (a = 0; a < N; a++) {
-    Handle<Object> word_obj = New<Object>();
+    Local<Object> word_obj = New<Object>();
     word_obj->Set(New<String>("word").ToLocalChecked(), New<String>(bestw[a]).ToLocalChecked());
     word_obj->Set(New<String>("similarity").ToLocalChecked(), New<Number>(bestd[a]));
     word_obj_array->Set(New<Number>(a), word_obj);
@@ -384,7 +387,7 @@ void getNeighbors(const FunctionCallbackInfo<Value>& info) {
   }
   Local<Array> word_obj_array = New<Array>(N);
   for (a = 0; a < N; a++) {
-    Handle<Object> word_obj = New<Object>();
+    Local<Object> word_obj = New<Object>();
     word_obj->Set(New<String>("word").ToLocalChecked(), New<String>(bestw[a]).ToLocalChecked());
     word_obj->Set(New<String>("similarity").ToLocalChecked(), New<Number>(bestd[a]));
     word_obj_array->Set(New<Number>(a), word_obj);
